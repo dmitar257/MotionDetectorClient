@@ -1,0 +1,91 @@
+#:kivy 2.1.0
+
+<MainWindow>:
+
+    BoxLayout:
+        size: root.width, root.height
+        orientation:'vertical'
+        
+        Image:
+            id:canvas
+            size_hint: (1,.875)
+        Button:
+            text:"Connect to detector"
+            size_hint: (1, .076)
+            on_release: app.on_connect(self)
+        Label:
+            id: connected_label
+            size_hint:(1, .04)
+            text: "Connected to host ..."
+            canvas.before:
+                Color:
+                    rgba: root.connect_label_color
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+
+<ConnectionPopup>:
+    ip_addr: ip_addr_input.text
+    port: port_input.text    
+    Label:
+        pos_hint: {'x':.0, 'top': 1}
+        size_hint: 1, 0.25
+        text: "Please enter the IP address of the host running Motion Detector app"
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+    GridLayout:
+        size_hint: 1, 0.6
+        pos_hint: {'x':.0, 'top': 0.75}
+        cols: 2
+        rows: 2
+        row_force_default: True
+        row_default_height: self.height / 4
+        spacing: 10, 10
+        padding: 10, 10
+        Label:
+            text: 'IP Address:'
+            halign: 'right'
+            valign: 'middle'
+            text_size: self.size
+            size_hint_x: None
+            width:root.width / 4
+        TextInput:
+            id: ip_addr_input            
+            text: '127.0.0.1'
+            multiline: False
+            font_size: 16
+            size_hint_x: None
+            width:root.width / 2
+        Label:
+            text: 'Port:'
+            font_size: 16
+            halign: 'right'
+            valign: 'middle'
+            text_size: self.size
+            size_hint_x: None
+            width:root.width / 4
+        TextInput:
+            id: port_input        
+            text: '5555'
+            multiline: False
+            font_size: 16
+            input_filter: 'int' #Only allow integer numbers as input.
+            size_hint_x: None
+            width:root.width / 2
+    Button:
+        text:"Connect"
+        size_hint: 0.5, 0.2
+        pos_hint: {'x':.0, 'y': 0}
+        on_press: app.on_host_info_entered(root.ip_addr, root.port); root.popup.dismiss()
+    Button:
+        text:"Cancel"
+        size_hint: 0.5, 0.2
+        pos_hint: {'x':.5, 'y': 0}
+        on_press: root.popup.dismiss()
+                
+
+
+
+
+
