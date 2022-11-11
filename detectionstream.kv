@@ -5,10 +5,17 @@
     BoxLayout:
         size: root.width, root.height
         orientation:'vertical'
-        
         Image:
-            id:canvas
+            id:canvasImage
             size_hint: (1,.875)
+            allow_stretch: True
+            keep_ratio: True
+            canvas.before:
+                Color:
+                    rgba: (.2,.2,.2,1)
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
         Button:
             text:"Connect to detector"
             size_hint: (1, .076)
@@ -24,9 +31,24 @@
                     pos: self.pos
                     size: self.size
 
+<ErrorPopup>:
+    Label:
+        id: msg_label
+        pos_hint: {'x':.0, 'top': 1}
+        size_hint: 1, 0.8
+        text: root.msg_text
+        text_size: self.size
+        halign: 'center'
+        valign: 'middle'
+    Button:
+        pos_hint: {'x':.0, 'y': 0}
+        size_hint: 1, 0.2
+        text:"Close"
+        on_press: root.popup.dismiss()
+
 <ConnectionPopup>:
     ip_addr: ip_addr_input.text
-    port: port_input.text    
+    port: port_input.text   
     Label:
         pos_hint: {'x':.0, 'top': 1}
         size_hint: 1, 0.25
@@ -40,47 +62,43 @@
         cols: 2
         rows: 2
         row_force_default: True
-        row_default_height: self.height / 4
+        row_default_height: self.height / 2.6
         spacing: 10, 10
         padding: 10, 10
         Label:
             text: 'IP Address:'
-            halign: 'right'
+            halign: 'center'
             valign: 'middle'
             text_size: self.size
             size_hint_x: None
-            width:root.width / 4
+            width:root.width / 3
         TextInput:
             id: ip_addr_input            
             text: '127.0.0.1'
             multiline: False
-            font_size: 16
-            size_hint_x: None
-            width:root.width / 2
+            text_size: self.size
         Label:
             text: 'Port:'
-            font_size: 16
-            halign: 'right'
+            halign: 'center'
             valign: 'middle'
             text_size: self.size
             size_hint_x: None
-            width:root.width / 4
+            width:root.width / 3
         TextInput:
             id: port_input        
-            text: '5555'
+            text: '9500'
             multiline: False
-            font_size: 16
+            text_size: self.size
             input_filter: 'int' #Only allow integer numbers as input.
-            size_hint_x: None
-            width:root.width / 2
+
     Button:
         text:"Connect"
-        size_hint: 0.5, 0.2
+        size_hint: 0.5, 0.15
         pos_hint: {'x':.0, 'y': 0}
         on_press: app.on_host_info_entered(root.ip_addr, root.port); root.popup.dismiss()
     Button:
         text:"Cancel"
-        size_hint: 0.5, 0.2
+        size_hint: 0.5, 0.15
         pos_hint: {'x':.5, 'y': 0}
         on_press: root.popup.dismiss()
                 

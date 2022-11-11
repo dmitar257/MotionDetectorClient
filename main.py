@@ -1,11 +1,12 @@
-from typing import Tuple
+from typing import Optional, Tuple
 from kivy.app import App
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.widget import Widget
 from kivy.uix.popup import Popup
-from kivy.properties import ObjectProperty, ListProperty
+from kivy.properties import ObjectProperty, ListProperty, StringProperty
 from kivy.lang.builder import Builder
-import cv2
+from kivy.core.image import Image as CoreImage
+import io
 
 from utils import Timer
 from kivy.graphics.texture import Texture
@@ -22,13 +23,16 @@ RED_COLOR = [.7, 0, 0, 1]
 class ConnectionPopup(FloatLayout):
     popup = ObjectProperty(None)
 
+class ErrorPopup(FloatLayout):
+    popup = ObjectProperty(None)
+    msg_text = StringProperty("")
+
 class MainWindow(Widget):
     connect_label_color = ListProperty(BLACK_COLOR)
 
 class DetectionStreamApp(App):
     def build(self) -> Widget:
         self.frame_receiver = FrameReceiver()
-        #self.frame_receiver.start()
         self.frame_display_timer = Timer(1/30, self.show_frame)
         self.host_inactivity_timer = Timer(3, self.toggle_label_host_active, False)
         self.main_window = MainWindow()
@@ -36,7 +40,7 @@ class DetectionStreamApp(App):
 
     def on_connect(self, *args) -> None:
         connection_popup = ConnectionPopup()
-        popupWindow = Popup(title="Connection to Motion Detector", content=connection_popup, size_hint=(None, None), size=(400, 300))
+        popupWindow = Popup(title="Connection to Motion Detector", content=connection_popup, size_hint=(.6, .4), auto_dismiss=False)
         connection_popup.popup = popupWindow
         popupWindow.open()
 
@@ -53,7 +57,8 @@ class DetectionStreamApp(App):
     def host_info_changed(self, host_info:Tuple[str , int]) -> None:
         if self.frame_receiver.endpoint_info and \
             host_info[0] == self.frame_receiver.endpoint_info[0] and \
-            host_info[1] == self.frame_receiver.endpoint_info[1]:
+            host_info[1] == self.frame_receiver.endpoint_info[1] and \
+            self.frame_receiver.is_running():
             return False
         return True 
 
@@ -67,17 +72,29 @@ class DetectionStreamApp(App):
         self.main_window.ids.canvas.texture = None
 
     def show_frame(self, *args) -> None:
-        frame = self.frame_receiver.get_frame()
+        frame = self.get_frame_from_queue()
         if frame is None:
             if not self.host_inactivity_timer.isRunning():
                 self.host_inactivity_timer.start()
             return
         self.host_inactivity_timer.stop()
         self.toggle_label_host_active(True)
-        buffer = cv2.flip(frame, 0).tobytes()
-        texture = Texture.create(size = (frame.shape[1], frame.shape[0]), colorfmt = "bgr")
-        texture.blit_buffer(buffer, colorfmt = "bgr", bufferfmt= "ubyte")
-        self.main_window.ids.canvas.texture = texture
+        self.main_window.ids.canvasImage.texture = CoreImage(io.BytesIO(frame), ext="jpg").texture
+    
+    def get_frame_from_queue(self) -> Optional[bytes]:
+        response = self.frame_receiver.get_frame()
+        if response and isinstance(response, Exception):
+            self.frame_receiver.is_running()
+            self.popup_exception_details(str(response))
+            return None
+        return response
+    
+    def popup_exception_details(self, msg_text:str) -> None:
+        error_popup = ErrorPopup()
+        error_popup.msg_text = msg_text
+        popupWindow = Popup(title="Error appeared while streaming", content=error_popup, size_hint=(.5, .3))
+        error_popup.popup = popupWindow
+        popupWindow.open()
 
 if __name__ == "__main__":
     DetectionStreamApp().run()
