@@ -8,13 +8,11 @@ from kivy.lang.builder import Builder
 from kivy.core.image import Image as CoreImage
 import io
 
-from utils import Timer
-from kivy.graphics.texture import Texture
-from kivy.logger import Logger
 
+from utils import Timer, resource_path
 from frameReceiver import FrameReceiver
 
-main_content = Builder.load_file("detectionstream.kv")
+main_content = Builder.load_file(resource_path("detectionstream.kv"))
 BLACK_COLOR = [0, 0, 0, 1]
 GREEN_COLOR = [.17, .745, .145, 1]
 RED_COLOR = [.7, 0, 0, 1]

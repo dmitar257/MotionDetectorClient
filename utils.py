@@ -1,6 +1,8 @@
 from typing import Callable, Optional
 from kivy.clock import Clock
 from functools import partial
+import sys
+import os
 
 class Timer:
     def __init__(self, interval: int, callback_func: Callable, *args) -> None:   
@@ -23,3 +25,7 @@ class Timer:
     def isRunning(self) -> bool:
         return self.is_running
 
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
