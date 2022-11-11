@@ -95,4 +95,6 @@ class DetectionStreamApp(App):
         popupWindow.open()
 
 if __name__ == "__main__":
-    DetectionStreamApp().run()
+    app = DetectionStreamApp()
+    app.title = "MotionDetectorClient"
+    app.run()
