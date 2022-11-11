@@ -69,7 +69,7 @@ class DetectionStreamApp(App):
             return
         self.main_window.connect_label_color = RED_COLOR
         self.main_window.ids.connected_label.text = f"Inactivity detected on connection with host: {self.frame_receiver.endpoint_info[0]}:{self.frame_receiver.endpoint_info[1]}"  
-        self.main_window.ids.canvas.texture = None
+        self.main_window.ids.canvasImage.texture = None
 
     def show_frame(self, *args) -> None:
         frame = self.get_frame_from_queue()
