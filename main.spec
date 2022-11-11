@@ -37,5 +37,5 @@ exe = EXE(pyz,
           upx_exclude=[],
           runtime_tmpdir=None,
           disable_windowed_traceback=False,
-          debug=True,
-          console=True )
+          debug=False,
+          console=False )
